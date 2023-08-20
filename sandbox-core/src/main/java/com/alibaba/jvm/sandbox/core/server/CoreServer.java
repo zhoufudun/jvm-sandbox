@@ -17,7 +17,7 @@ public interface CoreServer {
      *
      * @return 服务器是否已经绑定端口
      */
-    boolean isBind();
+    boolean  isBind();
 
     /**
      * 服务器解除端口绑定

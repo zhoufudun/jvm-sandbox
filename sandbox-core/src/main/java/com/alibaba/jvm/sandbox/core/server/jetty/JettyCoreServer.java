@@ -122,11 +122,11 @@ public class JettyCoreServer implements CoreServer {
         final String namespace = cfg.getNamespace();
         final ServletContextHandler context = new ServletContextHandler(NO_SESSIONS);
 
-        final String contextPath = "/sandbox/" + namespace;
+        final String contextPath = "/sandbox/" + namespace; // /sandbox/default
         context.setContextPath(contextPath);
-        context.setClassLoader(getClass().getClassLoader());
+        context.setClassLoader(getClass().getClassLoader()); // SandboxClassLoader[namespace=default;path=/root/jvm-sandbox/sandbox/bin/../lib/sandbox-core.jar;]
 
-        // web-socket-servlet
+        // web-socket-servlet : 支持websocket协议
         final String wsPathSpec = "/module/websocket/*";
         logger.info("initializing ws-http-handler. path={}", contextPath + wsPathSpec);
         //noinspection deprecation
@@ -135,7 +135,7 @@ public class JettyCoreServer implements CoreServer {
                 wsPathSpec
         );
 
-        // module-http-servlet
+        // module-http-servlet：支持http协议
         final String pathSpec = "/module/http/*";
         logger.info("initializing http-handler. path={}", contextPath + pathSpec);
         context.addServlet(
@@ -177,7 +177,7 @@ public class JettyCoreServer implements CoreServer {
             initializer.initProcess(() -> {
                 LogbackUtils.init(
                         cfg.getNamespace(),
-                        cfg.getCfgLibPath() + File.separator + "sandbox-logback.xml"
+                        cfg.getCfgLibPath() + File.separator + "sandbox-logback.xml" // /root/jvm-sandbox/sandbox/bin/../cfg/sandbox-logback.xml
                 );
                 logger.info("initializing server. cfg={}", cfg);
                 jvmSandbox = new JvmSandbox(cfg, inst);

@@ -108,11 +108,11 @@ public class DefaultProviderManager implements ProviderManager {
     }
 
     @Override
-    public void loading(final String uniqueId,
-                        final Class moduleClass,
-                        final Module module,
-                        final File moduleJarFile,
-                        final ClassLoader moduleClassLoader) throws Throwable {
+    public void loading(final String uniqueId, //sandbox-control
+                        final Class moduleClass, //class com.alibaba.jvm.sandbox.module.mgr.ControlModule
+                        final Module module, // ControlModule
+                        final File moduleJarFile, // /root/jvm-sandbox/sandbox/bin/../module/sandbox-mgr-module.jar
+                        final ClassLoader moduleClassLoader) throws Throwable { // ModuleJarClassLoader[crc32=2075957036;file=/root/jvm-sandbox/sandbox/bin/../module/sandbox-mgr-module.jar;]
         for (final ModuleLoadingChain chain : moduleLoadingChains) {
             chain.loading(
                     uniqueId,

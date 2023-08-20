@@ -27,8 +27,8 @@ class ModuleLibLoader {
     // 沙箱加载模式
     private final Information.Mode mode;
 
-    ModuleLibLoader(final File moduleLibDir,
-                    final Information.Mode mode) {
+    ModuleLibLoader(final File moduleLibDir, // /root/jvm-sandbox/sandbox/bin/../module
+                    final Information.Mode mode) { // ATTACH
         this.moduleLibDir = moduleLibDir;
         this.mode = mode;
     }
@@ -63,14 +63,14 @@ class ModuleLibLoader {
     /**
      * 加载Module
      *
-     * @param mjCb 模块文件加载回调
+     * @param mjCb 模块文件加载回调:
      * @param mCb  模块加载回掉
      */
-    void load(final ModuleJarLoadCallback mjCb,
-              final ModuleJarLoader.ModuleLoadCallback mCb) {
+    void load(final ModuleJarLoadCallback mjCb, // InnerModuleJarLoadCallback
+              final ModuleJarLoader.ModuleLoadCallback mCb) { // InnerModuleLoadCallback
 
         // 开始逐条加载
-        for (final File moduleJarFile : listModuleJarFileInLib()) {
+        for (final File moduleJarFile : listModuleJarFileInLib()) { // /root/jvm-sandbox/sandbox/bin/../module/sandbox-mgr-module.jar
             try {
                 mjCb.onLoad(moduleJarFile);
                 new ModuleJarLoader(moduleJarFile, mode).load(mCb);

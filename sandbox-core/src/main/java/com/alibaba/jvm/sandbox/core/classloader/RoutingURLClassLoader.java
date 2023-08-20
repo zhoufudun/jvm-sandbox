@@ -75,7 +75,7 @@ public class RoutingURLClassLoader extends URLClassLoader {
         }
 
         try {
-            Class<?> aClass = findClass(javaClassName);
+            Class<?> aClass = findClass(javaClassName); // 交给父类加载
             if (resolve) {
                 resolveClass(aClass);
             }

@@ -48,7 +48,7 @@ public class JvmSandbox {
 
     public JvmSandbox(final CoreConfigure cfg,
                       final Instrumentation inst) {
-        this.cfg = cfg;
+        this.cfg = cfg; //;mode=attach;sandbox_home=/root/jvm-sandbox/sandbox/bin/..;user_module=/root/jvm-sandbox/sandbox/sandbox-module\;~/.sandbox-module\;;cfg=/root/jvm-sandbox/sandbox/bin/../cfg;provider=/root/jvm-sandbox/sandbox/bin/../provider;namespace=default;server.ip=0.0.0.0;server.port=0;system_module=/root/jvm-sandbox/sandbox/bin/../module;unsafe.enable=true;server.charset=UTF-8;
 
         // 是否支持Native方法增强
         cfg.setNativeSupported(isNativeSupported(inst));
@@ -64,7 +64,7 @@ public class JvmSandbox {
 
     private void init() {
         doEarlyLoadSandboxClass();
-        SpyUtils.init(cfg.getNamespace());
+        SpyUtils.init(cfg.getNamespace()); // default
     }
 
     /**

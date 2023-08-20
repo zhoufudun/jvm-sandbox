@@ -3,6 +3,8 @@ package com.alibaba.jvm.sandbox.core.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -79,21 +81,24 @@ public class SandboxProtector {
      * @return 被保护的目标接口实现
      */
     @SuppressWarnings("unchecked")
-    public <T> T protectProxy(final Class<T> protectTargetInterface,
-                              final T protectTarget) {
-        return (T) Proxy.newProxyInstance(getClass().getClassLoader(), new Class<?>[]{protectTargetInterface}, (proxy, method, args) -> {
-            final int enterReferenceCount = enterProtecting();
-            try {
-                return method.invoke(protectTarget, args);
-            } finally {
-                final int exitReferenceCount = exitProtecting();
-                // assert enterReferenceCount == exitReferenceCount;
-                if (enterReferenceCount != exitReferenceCount) {
-                    logger.warn("thread:{} exit protecting with error!, expect:{} actual:{}",
-                            Thread.currentThread(),
-                            enterReferenceCount,
-                            exitReferenceCount
-                    );
+    public <T> T protectProxy(final Class<T> protectTargetInterface, // interface com.alibaba.jvm.sandbox.core.manager.CoreModuleManager
+                              final T protectTarget) { // DefaultCoreModuleManager
+        return (T) Proxy.newProxyInstance(getClass().getClassLoader(), new Class<?>[]{protectTargetInterface}, new InvocationHandler() {
+            @Override
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                final int enterReferenceCount = SandboxProtector.this.enterProtecting();
+                try {
+                    return method.invoke(protectTarget, args);
+                } finally {
+                    final int exitReferenceCount = SandboxProtector.this.exitProtecting();
+                    // assert enterReferenceCount == exitReferenceCount;
+                    if (enterReferenceCount != exitReferenceCount) {
+                        logger.warn("thread:{} exit protecting with error!, expect:{} actual:{}",
+                                Thread.currentThread(),
+                                enterReferenceCount,
+                                exitReferenceCount
+                        );
+                    }
                 }
             }
         });

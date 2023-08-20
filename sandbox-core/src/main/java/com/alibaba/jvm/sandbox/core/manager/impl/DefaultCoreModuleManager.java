@@ -175,7 +175,7 @@ public class DefaultCoreModuleManager implements CoreModuleManager {
         // 初始化模块信息
         final CoreModule coreModule = new CoreModule(uniqueId, moduleJarFile, moduleClassLoader, module);
 
-        // 注入@Resource资源
+        // 注入@Resource资源: 处理注解：@Resource
         injectResourceOnLoadIfNecessary(coreModule);
 
         // 通知模块生命周期：模块加载
@@ -560,7 +560,7 @@ public class DefaultCoreModuleManager implements CoreModuleManager {
             );
 
             // 这里进行真正的模块加载
-            load(uniqueId, module, moduleJarFile, moduleClassLoader);
+            load(uniqueId, module, moduleJarFile, moduleClassLoader); // sandbox-control、ControlModule、/root/jvm-sandbox/sandbox/bin/../module/sandbox-mgr-module.jar、ModuleJarClassLoader[crc32=2075957036;file=/root/jvm-sandbox/sandbox/bin/../module/sandbox-mgr-module.jar;]
         }
     }
 
@@ -582,7 +582,7 @@ public class DefaultCoreModuleManager implements CoreModuleManager {
         unloadAll();
 
         // 2. 加载所有模块
-        for (final File moduleLibDir : moduleLibDirArray) {
+        for (final File moduleLibDir : moduleLibDirArray) { // /root/jvm-sandbox/sandbox/bin/../module
             // 用户模块加载目录，加载用户模块目录下的所有模块
             // 对模块访问权限进行校验
             if (moduleLibDir.exists() && moduleLibDir.canRead()) {

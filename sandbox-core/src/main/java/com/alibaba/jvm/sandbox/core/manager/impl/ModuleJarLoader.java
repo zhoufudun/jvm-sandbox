@@ -14,7 +14,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.ServiceLoader;
 import java.util.Set;
-
+// 每一个模块单独一个类加载器
 class ModuleJarLoader {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -32,8 +32,8 @@ class ModuleJarLoader {
     }
 
 
-    private boolean loadingModules(final ModuleJarClassLoader moduleClassLoader,
-                                   final ModuleLoadCallback mCb) {
+    private boolean loadingModules(final ModuleJarClassLoader moduleClassLoader, //ModuleJarClassLoader[crc32=2075957036;file=/root/jvm-sandbox/sandbox/bin/../module/sandbox-mgr-module.jar;]
+                                   final ModuleLoadCallback mCb) { // DefaultCoreModuleManager$InnerModuleLoadCallback
 
         final Set<String> loadedModuleUniqueIds = new LinkedHashSet<>();
         final ServiceLoader<Module> moduleServiceLoader = ServiceLoader.load(Module.class, moduleClassLoader);
@@ -110,7 +110,7 @@ class ModuleJarLoader {
         return !loadedModuleUniqueIds.isEmpty();
     }
 
-
+    // innerModuleLoadCallback
     void load(final ModuleLoadCallback mCb) throws IOException {
 
 
@@ -119,11 +119,11 @@ class ModuleJarLoader {
         logger.info("prepare loading module-jar={};", moduleJarFile);
         try {
             moduleJarClassLoader = new ModuleJarClassLoader(moduleJarFile);
-
+            // Launcher$AppClassLoader
             final ClassLoader preTCL = Thread.currentThread().getContextClassLoader();
             Thread.currentThread().setContextClassLoader(moduleJarClassLoader);
 
-            try {
+                try {
                 hasModuleLoadedSuccessFlag = loadingModules(moduleJarClassLoader, mCb);
             } finally {
                 Thread.currentThread().setContextClassLoader(preTCL);

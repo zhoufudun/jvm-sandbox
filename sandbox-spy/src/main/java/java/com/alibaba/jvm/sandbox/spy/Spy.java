@@ -24,7 +24,7 @@ public class Spy {
      * F:不对外抛出，只将异常信息打印出来
      */
     public static volatile boolean isSpyThrowException = false;
-
+    // key=namespace, value=EventListenerHandler
     private static final ConcurrentHashMap<String, SpyHandler> namespaceSpyHandlerMap
             = new ConcurrentHashMap<>();
 

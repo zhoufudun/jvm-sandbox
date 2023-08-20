@@ -49,11 +49,11 @@ public class CoreConfigure {
 
     private final Map<String, String> featureMap = new LinkedHashMap<>();
 
-    private CoreConfigure(final String featureString,
-                          final String propertiesFilePath) {
-        final Map<String, String> featureMap = toFeatureMap(featureString);
-        final Map<String, String> propertiesMap = toPropertiesMap(propertiesFilePath);
-        this.featureMap.putAll(merge(featureMap, propertiesMap));
+    private CoreConfigure(final String featureString, // ;cfg=/root/jvm-sandbox/sandbox/bin/../cfg;system_module=/root/jvm-sandbox/sandbox/bin/../module;mode=attach;sandbox_home=/root/jvm-sandbox/sandbox/bin/..;user_module=/root/jvm-sandbox/sandbox/sandbox-module;provider=/root/jvm-sandbox/sandbox/bin/../provider;namespace=default;server.ip=0.0.0.0;server.port=0;
+                          final String propertiesFilePath) { // /root/jvm-sandbox/sandbox/bin/../cfg/sandbox.properties
+        final Map<String, String> featureMap = toFeatureMap(featureString); // ;cfg=/root/jvm-sandbox/sandbox/bin/../cfg;system_module=/root/jvm-sandbox/sandbox/bin/../module;mode=attach;sandbox_home=/root/jvm-sandbox/sandbox/bin/..;user_module=/root/jvm-sandbox/sandbox/sandbox-module;provider=/root/jvm-sandbox/sandbox/bin/../provider;namespace=default;server.ip=0.0.0.0;server.port=0;
+        final Map<String, String> propertiesMap = toPropertiesMap(propertiesFilePath); // {unsafe.enable=true, user_module=~/.sandbox-module;, server.charset=UTF-8}
+        this.featureMap.putAll(merge(featureMap, propertiesMap)); // 合并后： {mode=attach, sandbox_home=/root/jvm-sandbox/sandbox/bin/.., user_module=/root/jvm-sandbox/sandbox/sandbox-module;~/.sandbox-module;, cfg=/root/jvm-sandbox/sandbox/bin/../cfg, provider=/root/jvm-sandbox/sandbox/bin/../provider, namespace=default, server.ip=0.0.0.0, server.port=0, system_module=/root/jvm-sandbox/sandbox/bin/../module, unsafe.enable=true, server.charset=UTF-8}
     }
 
     private Map<String, String> toFeatureMap(String featureString) {
@@ -94,6 +94,12 @@ public class CoreConfigure {
         return propertiesMap;
     }
 
+    /**
+     *
+     * @param featureMap : {mode=attach, sandbox_home=/root/jvm-sandbox/sandbox/bin/.., user_module=/root/jvm-sandbox/sandbox/sandbox-module, cfg=/root/jvm-sandbox/sandbox/bin/../cfg, provider=/root/jvm-sandbox/sandbox/bin/../provider, namespace=default, server.ip=0.0.0.0, server.port=0, system_module=/root/jvm-sandbox/sandbox/bin/../module}
+     * @param propertiesMap: {unsafe.enable=true, user_module=~/.sandbox-module;, server.charset=UTF-8}
+     * @return
+     */
     private Map<String, String> merge(Map<String, String> featureMap, Map<String, String> propertiesMap) {
 
         // 以featureMap配置为准

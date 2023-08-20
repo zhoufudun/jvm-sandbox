@@ -176,6 +176,7 @@
         <module>sandbox-mgr-provider</module>
         <module>sandbox-module-starter</module>
         <module>sandbox-debug-module</module>
+        <module>sandbox-user-demo</module>
     </modules>
 
     <dependencyManagement>

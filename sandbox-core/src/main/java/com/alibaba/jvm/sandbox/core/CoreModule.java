@@ -57,10 +57,10 @@ public class CoreModule {
                       final File jarFile,
                       final ModuleJarClassLoader loader,
                       final Module module) {
-        this.uniqueId = uniqueId;
-        this.jarFile = jarFile;
-        this.loader = loader;
-        this.module = module;
+        this.uniqueId = uniqueId; // sandbox-control
+        this.jarFile = jarFile; // /root/jvm-sandbox/sandbox/bin/../module/sandbox-mgr-module.jar
+        this.loader = loader; // ModuleJarClassLoader[crc32=2075957036;file=/root/jvm-sandbox/sandbox/bin/../module/sandbox-mgr-module.jar;]
+        this.module = module; // ControlModule
     }
 
     /**

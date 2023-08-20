@@ -610,7 +610,7 @@ public class EventListenerHandler implements SpyHandler {
 
     private final static EventListenerHandler singleton = new EventListenerHandler();
 
-    public static EventListenerHandler getSingleton() {
+    public static EventListenerHandler getSingleton() { // 举例： 这个类的类加载器=SandboxClassLoader[namespace=default;path=/root/jvm-sandbox/sandbox/bin/../lib/sandbox-core.jar;]
         return singleton;
     }
 

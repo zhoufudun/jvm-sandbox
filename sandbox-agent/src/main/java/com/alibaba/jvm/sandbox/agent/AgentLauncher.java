@@ -36,7 +36,7 @@ public class AgentLauncher {
     private static String getSandboxCoreJarPath(String sandboxHome) {
         return sandboxHome + File.separatorChar + "lib" + File.separator + "sandbox-core.jar";
     }
-
+    // /root/jvm-sandbox/sandbox/bin/../lib/sandbox-spy.jar
     private static String getSandboxSpyJarPath(String sandboxHome) {
         return sandboxHome + File.separatorChar + "lib" + File.separator + "sandbox-spy.jar";
     }
@@ -49,13 +49,14 @@ public class AgentLauncher {
         return sandboxHome + File.separatorChar + "provider";
     }
 
-
+    // /root/jvm-sandbox/sandbox
     // sandbox默认主目录
     private static final String DEFAULT_SANDBOX_HOME
+            // /root/jvm-sandbox/sandbox/lib/sandbox-agent.jar
             = new File(AgentLauncher.class.getProtectionDomain().getCodeSource().getLocation().getFile())
             .getParentFile()
             .getParent();
-
+    // /root/jvm-sandbox/sandbox/sandbox-module
     private static final String SANDBOX_USER_MODULE_PATH
             = DEFAULT_SANDBOX_HOME
             + File.separator + "sandbox-module";
@@ -67,15 +68,15 @@ public class AgentLauncher {
     private static final String LAUNCH_MODE_ATTACH = "attach";
 
     // 启动默认
-    private static String LAUNCH_MODE;
+    private static String LAUNCH_MODE; //attach
 
     // agentmain上来的结果输出到文件${HOME}/.sandbox.token
     private static final String RESULT_FILE_PATH = System.getProperties().getProperty("user.home")
-            + File.separator + ".sandbox.token";
+            + File.separator + ".sandbox.token"; // /root/.sandbox.token
 
-    // 全局持有ClassLoader用于隔离sandbox实现
+    // 全局持有ClassLoader用于隔离sandbox实现, 每一个Module都有独立的类加载器
     private static final Map<String/*NAMESPACE*/, SandboxClassLoader> sandboxClassLoaderMap
-            = new ConcurrentHashMap<>();
+            = new ConcurrentHashMap<>(); //default -> {SandboxClassLoader@2211} "SandboxClassLoader[namespace=default;path=/root/jvm-sandbox/sandbox/bin/../lib/sandbox-core.jar;]"
 
     private static final String CLASS_OF_CORE_CONFIGURE = "com.alibaba.jvm.sandbox.core.CoreConfigure";
     private static final String CLASS_OF_PROXY_CORE_SERVER = "com.alibaba.jvm.sandbox.core.server.ProxyCoreServer";
@@ -96,13 +97,13 @@ public class AgentLauncher {
     /**
      * 动态加载
      *
-     * @param featureString 启动参数
+     * @param featureString 启动参数 : home=/root/jvm-sandbox/sandbox/bin/..;token=315687178643;server.ip=0.0.0.0;server.port=0;namespace=default
      *                      [namespace,token,ip,port,prop]
      * @param inst          inst
      */
     public static void agentmain(String featureString, Instrumentation inst) {
-        LAUNCH_MODE = LAUNCH_MODE_ATTACH;
-        final Map<String, String> featureMap = toFeatureMap(featureString);
+        LAUNCH_MODE = LAUNCH_MODE_ATTACH; //attach
+        final Map<String, String> featureMap = toFeatureMap(featureString);  // featureString转为Map
         writeAttachResult(
                 getNamespace(featureMap),
                 getToken(featureMap),
@@ -116,14 +117,14 @@ public class AgentLauncher {
      * NAMESPACE;TOKEN;IP;PORT
      * </p>
      *
-     * @param namespace 命名空间
-     * @param token     操作TOKEN
-     * @param local     服务器监听[IP:PORT]
+     * @param namespace 命名空间： default
+     * @param token     操作TOKEN ：142900856743
+     * @param local     服务器监听[IP:PORT] ：/0.0.0.0:36138
      */
     private static synchronized void writeAttachResult(final String namespace,
                                                        final String token,
                                                        final InetSocketAddress local) {
-        final File file = new File(RESULT_FILE_PATH);
+        final File file = new File(RESULT_FILE_PATH); // //token文件内容举例：default;328154993543;0.0.0.0;36313 [换行] default;135469771143;0.0.0.0;36313
         if (file.exists()
                 && (!file.isFile()
                 || !file.canWrite())) {
@@ -136,7 +137,7 @@ public class AgentLauncher {
                                 token,
                                 local.getHostName(),
                                 local.getPort()
-                        )
+                        ) //写入一条：default;142900856743;0.0.0.0;36138
                 );
                 fw.flush();
             } catch (IOException e) {
@@ -145,8 +146,8 @@ public class AgentLauncher {
             // ignore
         }
     }
-
-
+    // default
+    // /root/jvm-sandbox/sandbox/bin/../lib/sandbox-core.jar
     private static synchronized ClassLoader loadOrDefineClassLoader(final String namespace,
                                                                     final String coreJar) throws Throwable {
 
@@ -193,19 +194,19 @@ public class AgentLauncher {
     /**
      * 在当前JVM安装jvm-sandbox
      *
-     * @param featureMap 启动参数配置
+     * @param featureMap 启动参数配置: {home=/root/jvm-sandbox/sandbox/bin/.., token=375680827743, server.ip=0.0.0.0, server.port=0, namespace=default}
      * @param inst       inst
      * @return 服务器IP:PORT
      */
     private static synchronized InetSocketAddress install(final Map<String, String> featureMap,
                                                           final Instrumentation inst) {
 
-        final String namespace = getNamespace(featureMap);
-        final String propertiesFilePath = getPropertiesFilePath(featureMap);
+        final String namespace = getNamespace(featureMap); //default
+        final String propertiesFilePath = getPropertiesFilePath(featureMap); ///root/jvm-sandbox/sandbox/bin/../cfg/sandbox.properties
         final String coreFeatureString = toFeatureString(featureMap);
 
         try {
-            final String home = getSandboxHome(featureMap);
+            final String home = getSandboxHome(featureMap); // /root/jvm-sandbox/sandbox/bin/..
             // 将Spy注入到BootstrapClassLoader
             inst.appendToBootstrapClassLoaderSearch(new JarFile(new File(
                     getSandboxSpyJarPath(home)
@@ -215,18 +216,18 @@ public class AgentLauncher {
             // 构造自定义的类加载器，尽量减少Sandbox对现有工程的侵蚀
             final ClassLoader sandboxClassLoader = loadOrDefineClassLoader(
                     namespace,
-                    getSandboxCoreJarPath(home)
+                    getSandboxCoreJarPath(home) // /root/jvm-sandbox/sandbox/bin/../lib/sandbox-core.jar
                     // SANDBOX_CORE_JAR_PATH
             );
 
-            // CoreConfigure类定义
+            // CoreConfigure类定义:class com.alibaba.jvm.sandbox.core.CoreConfigure
             final Class<?> classOfConfigure = sandboxClassLoader.loadClass(CLASS_OF_CORE_CONFIGURE);
 
             // 反序列化成CoreConfigure类实例
             final Object objectOfCoreConfigure = classOfConfigure.getMethod("toConfigure", String.class, String.class)
                     .invoke(null, coreFeatureString, propertiesFilePath);
 
-            // CoreServer类定义
+            // CoreServer类定义:class com.alibaba.jvm.sandbox.core.server.ProxyCoreServer
             final Class<?> classOfProxyServer = sandboxClassLoader.loadClass(CLASS_OF_PROXY_CORE_SERVER);
 
             // 获取CoreServer单例
@@ -343,9 +344,9 @@ public class AgentLauncher {
         return OS.contains("win");
     }
 
-    // 获取主目录
+    // 获取主目录:   /root/jvm-sandbox/sandbox/bin/..
     private static String getSandboxHome(final Map<String, String> featureMap) {
-        String home =  getDefault(featureMap, KEY_SANDBOX_HOME, DEFAULT_SANDBOX_HOME);
+        String home =  getDefault(featureMap, KEY_SANDBOX_HOME, DEFAULT_SANDBOX_HOME); // /root/jvm-sandbox/sandbox/bin/..
         if( isWindows() ){
             Matcher m = Pattern.compile("(?i)^[/\\\\]([a-z])[/\\\\]").matcher(home);
             if( m.find() ){
@@ -365,7 +366,7 @@ public class AgentLauncher {
         return getDefault(featureMap, KEY_TOKEN, DEFAULT_TOKEN);
     }
 
-    // 获取容器配置文件路径
+    // 获取容器配置文件路径: /root/jvm-sandbox/sandbox/bin/../cfg/sandbox.properties
     private static String getPropertiesFilePath(final Map<String, String> featureMap) {
         return getDefault(
                 featureMap,
@@ -386,7 +387,7 @@ public class AgentLauncher {
 
     // 将featureMap中的[K,V]对转换为featureString
     private static String toFeatureString(final Map<String, String> featureMap) {
-        final String sandboxHome = getSandboxHome(featureMap);
+        final String sandboxHome = getSandboxHome(featureMap); // /root/jvm-sandbox/sandbox/bin/..
         final StringBuilder featureSB = new StringBuilder(
                 format(
                         ";cfg=%s;system_module=%s;mode=%s;sandbox_home=%s;user_module=%s;provider=%s;namespace=%s;",
@@ -403,10 +404,10 @@ public class AgentLauncher {
                         getNamespace(featureMap)
                 )
         );
-
+        // fratureSB=;cfg=/root/jvm-sandbox/sandbox/bin/../cfg;system_module=/root/jvm-sandbox/sandbox/bin/../module;mode=attach;sandbox_home=/root/jvm-sandbox/sandbox/bin/..;user_module=/root/jvm-sandbox/sandbox/sandbox-module;provider=/root/jvm-sandbox/sandbox/bin/../provider;namespace=default;server.ip=0.0.0.0;
         // 合并IP(如有)
         appendFromFeatureMap(featureSB, featureMap, KEY_SERVER_IP, DEFAULT_IP);
-
+        // ;cfg=/root/jvm-sandbox/sandbox/bin/../cfg;system_module=/root/jvm-sandbox/sandbox/bin/../module;mode=attach;sandbox_home=/root/jvm-sandbox/sandbox/bin/..;user_module=/root/jvm-sandbox/sandbox/sandbox-module;provider=/root/jvm-sandbox/sandbox/bin/../provider;namespace=default;server.ip=0.0.0.0;server.port=0;
         // 合并PORT(如有)
         appendFromFeatureMap(featureSB, featureMap, KEY_SERVER_PORT, DEFAULT_PORT);
 
